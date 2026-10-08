@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Page</title>
+    <script>
+        async function loadUserData() {
+            const usernameElement = document.getElementById('username');
+
+            try {
+                const response = await fetch('./dummy_user_data.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load user data');
+                }
+
+                const user = await response.json();
+                const username = user.username || 'User';
+
+                document.title = `Hello ${username}`;
+                if (usernameElement) {
+                    usernameElement.textContent = username;
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                document.title = 'Hello User';
+                if (usernameElement) {
+                    usernameElement.textContent = usernameElement.textContent.trim() === '{username}' ? 'User' : usernameElement.textContent || 'User';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadUserData);
+    </script>
+</head>
+<body>
+    <h1>Hello <span id="username">Dynamic User Name Goes here</span></h1>
+    </p <span id="description">></p>
+</body>
+</html>
