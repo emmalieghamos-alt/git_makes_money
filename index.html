@@ -6,6 +6,33 @@
     <title>Document</title>
 </head>
 <body>
+    <div id="site-nav"></div>
+
     <h1>Digital You!</h1>
+
+    <div id="site-footer"></div>
+
+    <script>
+        async function loadFragment(folder, targetId, filenames) {
+            const target = document.getElementById(targetId);
+
+            for (const filename of filenames) {
+                try {
+                    const response = await fetch(`${folder}/${filename}`);
+                    if (response.ok) {
+                        target.innerHTML = await response.text();
+                        return;
+                    }
+                } catch (error) {
+                    console.error(`Unable to load ${folder}/${filename}`, error);
+                }
+            }
+
+            console.error(`No HTML fragment found in ${folder}`);
+        }
+
+        loadFragment('navFolder', 'site-nav', ['nav.html', 'index.html']);
+        loadFragment('footerFolder', 'site-footer', ['footer.html', 'index.html']);
+    </script>
 </body>
 </html>
