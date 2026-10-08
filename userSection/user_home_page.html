@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Page</title>
+    <style>
+        .social-windows { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; max-width: 1000px; }
+        .social-window { overflow: hidden; border: 1px solid #30363d; border-radius: 10px; color: #e6edf3; background: #0d1117; font-family: Arial, sans-serif; }
+        .social-window[data-url] { cursor: pointer; }
+        .social-window header { padding: 12px 16px; background: #161b22; border-bottom: 1px solid #30363d; }
+        .social-window p { padding: 0 16px; }
+        .social-window a { color: #58a6ff; }
+        .social-window iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; }
+    </style>
     <script>
         async function loadUserData() {
             const usernameElement = document.getElementById('username');
@@ -21,6 +30,19 @@
                 if (usernameElement) {
                     usernameElement.textContent = username;
                 }
+                const social = user.social || {};
+                setSocialLink('social-github-link', social.github, 'GitHub repository');
+                setSocialLink('social-linkedin-link', social.linkedin, 'LinkedIn page');
+                const youtubeUrl = setSocialLink('social-youtube-link', social.youtube, 'YouTube video');
+
+                const videoId = getYouTubeVideoId(youtubeUrl);
+                const video = document.getElementById('social-youtube-video');
+                if (videoId) {
+                    video.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}`;
+                    video.hidden = false;
+                } else {
+                    video.hidden = true;
+                }
             } catch (error) {
                 console.error('Error loading user data:', error);
                 document.title = 'Hello User';
@@ -30,11 +52,108 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadUserData);
+        function setSocialLink(elementId, value, label) {
+            const link = document.getElementById(elementId);
+            try {
+                const url = new URL(value);
+                if (url.protocol !== 'https:') throw new Error('Invalid URL');
+                link.href = url.href;
+                link.hidden = false;
+                const windowElement = link.closest('.social-window');
+                windowElement.dataset.url = url.href;
+                windowElement.setAttribute('role', 'link');
+                windowElement.tabIndex = 0;
+                return url.href;
+            } catch {
+                const windowElement = link.closest('.social-window');
+                delete windowElement.dataset.url;
+                windowElement.removeAttribute('role');
+                windowElement.removeAttribute('tabindex');
+                link.hidden = true;
+                return '';
+            }
+        }
+
+        document.addEventListener('click', event => {
+            const socialWindow = event.target.closest('.social-window[data-url]');
+            if (socialWindow && !event.target.closest('a')) {
+                window.open(socialWindow.dataset.url, '_blank', 'noopener,noreferrer');
+            }
+        });
+
+        document.addEventListener('keydown', event => {
+            const socialWindow = event.target.closest('.social-window[data-url]');
+            if (socialWindow && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                window.open(socialWindow.dataset.url, '_blank', 'noopener,noreferrer');
+            }
+        });
+
+        function getYouTubeVideoId(value) {
+            if (!value) return '';
+            try {
+                const url = new URL(value);
+                if (url.hostname === 'youtu.be') return url.pathname.slice(1);
+                if (url.hostname.endsWith('youtube.com')) {
+                    if (url.pathname === '/watch') return url.searchParams.get('v') || '';
+                    const match = url.pathname.match(/^\/(?:embed|shorts)\/([^/]+)/);
+                    return match ? match[1] : '';
+                }
+            } catch {
+                return '';
+            }
+            return '';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+        });
     </script>
 </head>
 <body>
-    <h1>Hello <span id="username">Dynamic User Name Goes here</span></h1>
-    </p <span id="description">></p>
+<h1>Hello <span id="username">Dynamic User Name Goes here</span></h1>
+
+<section class="social-windows" aria-label="Social media windows">
+    <!-- GitHub Link Card -->
+    <article class="social-window">
+        <header><strong>GitHub</strong></header>
+        <p>
+            <a href="https://github.com/emmalieghamos-alt/git_makes_money" target="_blank" rel="noopener noreferrer">
+                Open GitHub repository
+            </a>
+        </p>
+    </article>
+
+    <!-- LinkedIn Link Card -->
+    <article class="social-window">
+        <header><strong>LinkedIn</strong></header>
+        <p>
+            <a href="https://www.linkedin.com/company/wikipedia-the-free-encyclopedia/" target="_blank" rel="noopener noreferrer">
+                Open LinkedIn page
+            </a>
+        </p>
+    </article>
+
+    <!-- YouTube Embedded Player -->
+    <article class="social-window">
+        <header><strong>YouTube</strong></header>
+        <iframe 
+            id="social-youtube-video" 
+            src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+            title="YouTube video player" 
+            width="560" 
+            height="315" 
+            style="border:0;" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            referrerpolicy="strict-origin-when-cross-origin" 
+            allowfullscreen>
+        </iframe>
+        <p>
+            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer">
+                Open YouTube video in new tab
+            </a>
+        </p>
+    </article>
+</section>
 </body>
 </html>
