@@ -1,0 +1,21 @@
+{
+  "id": 1001,
+  "first_name": "John",
+  "last_name": "Smith",
+  "username": "johnsmith",
+  "email": "john.smith@example.com",
+  "phone": "+1-555-123-4567",
+  "gender": "male",
+  "address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "postal_code": "10001",
+    "country": "USA"
+  },
+  "employment": {
+    "company": "Acme Corp",
+    "role": "Software Engineer",
+    "department": "Engineering"
+  },
+}
